@@ -241,6 +241,7 @@ class TubeEnv(Env):
 
         self.var_max = (self.var + self.nopt / 2 * self.var_int).astype(np.int64)
         self.var_min = (self.var - self.nopt / 2 * self.var_int).astype(np.int64)
+        print(self.var, self.var_min, self.var_max)
 
         # Init state
         self.offset = np.append(0, self.var_min[1:]).cumsum()[0::2].astype(np.int64)
@@ -345,14 +346,25 @@ class TubeEnv(Env):
 if __name__ == "__main__":
     from mtr.utils.loader import get_EAL
     data = get_EAL(read=False, store=False)
-
+    data['demand'] = data['demand'] * 0.25
     env = TubeEnv(data)
     obs = env.reset()
+    print("totol number of passengers:", int(env.CDD[-1, ...].sum()))
+    done = False
 
-    act = np.zeros(env.action_space.shape)
-    actt, obs2, pwc, opc, done = env.step(act)
+    # no optimization
+    topc, tpwc = 0, 0
+    timetable = []
+    while not done:
+        act = np.zeros(env.action_space.shape)
+        actt, obs2, pwc, opc, done = env.step(act)
+        timetable.append(actt)
+        topc += opc
+        tpwc += pwc
+    print(np.array(timetable))
+    print(topc, tpwc, topc + tpwc, env.train, "\n", f"Last departure: {int(env.dpt[0])}", '\n', env.eff_board_t)
+    print("completed")
 
-    print(actt, obs2, pwc, opc, done)
 
     # acta = []
     # tpwc = []
