@@ -1,6 +1,7 @@
 import numba as nb
 import numpy as np
 from gym import Env, spaces
+from utils.loader import get_EAL
 
 
 # coefficients for cost function
@@ -295,7 +296,7 @@ class TubeEnv(Env):
                          self.stock_size, self.num_plat, self.var_max,
                          self.var_int, self.var_min, self.train,
                          np.array(self.feasible_train, dtype=np.int64))
-
+        act1=act
         # generate new timetable
         act[0] = act[0] + self.arv[0]  # arrive at the starting station
         ttb = act.cumsum(dtype=np.int64)
@@ -329,7 +330,7 @@ class TubeEnv(Env):
         # get the state representation
         self.state = np.concatenate([[self.train], ttb, psg_left], 0)
 
-        return act, self.state, pwc, opc, done
+        return act1, self.state, pwc, opc, done
 
     def seed(self, seed=None):
         self.np_random = np.random.RandomState()
@@ -342,12 +343,18 @@ class TubeEnv(Env):
             self._seed = None
         return [self._seed]
 
+    def __str__(self):
+        return  f"{self.name}-v{self.version} "
+
 
 if __name__ == "__main__":
-    from mtr.utils.loader import get_EAL
-    data = get_EAL(read=False, store=False)
+
+    from utils.loader import get_EAL
+    data = get_EAL(read=False, store=True)
     data['demand'] = data['demand'] * 0.25
     env = TubeEnv(data)
+    # print(data)
+
     obs = env.reset()
     print("totol number of passengers:", int(env.CDD[-1, ...].sum()))
     done = False

@@ -5,8 +5,8 @@ import random
 import numpy as np
 import torch
 
-#from utils.loader import get_victoria_data
-from mtr.utils.loader import get_EAL
+#from utils.loader import get_data
+from utils.loader import get_EAL
 
 
 def get_env_kwargs(demo=False, **kwargs):
@@ -14,8 +14,8 @@ def get_env_kwargs(demo=False, **kwargs):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # basic information
-    parser.add_argument('--t_start', default=6, type=int)
-    parser.add_argument('--t_end', default=10, type=int)
+    parser.add_argument('--t_start', default=7, type=int)
+    parser.add_argument('--t_end', default=8, type=int)
     parser.add_argument('--capacity', default= 250, type=int)
     parser.add_argument('--alpha',
                         default=kwargs.get('alpha') or 0.5,
@@ -35,7 +35,7 @@ def get_env_kwargs(demo=False, **kwargs):
     parser.add_argument('--headway_opt', default=9, type=int)
     parser.add_argument('--headway_int', default=50, type=int)
     parser.add_argument('--headway_safe', default=60, type=int)
-    parser.add_argument('--dwell_min', default=25, type=int)
+    parser.add_argument('--dwell_min', default=20, type=int)
     parser.add_argument('--dwell_int', default=5, type=int)
     parser.add_argument('--dwell_opt', default=6, type=int)
     parser.add_argument('--run_int', default=10, type=int)
@@ -52,10 +52,11 @@ def get_env_kwargs(demo=False, **kwargs):
 
 #    data = get_victoria_data()
     data = get_EAL()
-#    data['demand'] *= 0.8
-    data['demand'] = np.moveaxis(data['demand'], 2, 0)
+    # data['demand'] *= 0.8
+    # data['demand'] = np.moveaxis(data['demand'], 2, 0)
 
     kwargs['data'] = data
+    
     return kwargs
 
 
@@ -117,9 +118,20 @@ def get_configs(algo='ddpg',
         env_kwargs['seed'] = args.seed + 1
 
     env_kwargs['alpha'] = alpha
+    
+    del env_kwargs['t_start']
+    del env_kwargs['t_end']
+    del env_kwargs['capacity']
+    del env_kwargs['turn']
+    del env_kwargs['stock_size']
+    del env_kwargs['num_station']
+    del env_kwargs['headway_min']
+    del env_kwargs['headway_safe']
+    del env_kwargs['dwell_min']
 
     # get exp_name
-    from mtr.env import TubeEnv
+    # from mtr.env import TubeEnv
+    from env import TubeEnv
     exp_name = ("Demo" if demo else "Main") + (
         "Sto" if stochastic else "Det") + env_kwargs['data']['name'][:3]
     exp_name += f"{TubeEnv.name}_v{TubeEnv.version}" + f"_A{env_kwargs['alpha'] * 100:.0f}_"

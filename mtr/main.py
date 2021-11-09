@@ -1,4 +1,4 @@
-from configs import get_configs, set_global_seeds
+from utils.configs import get_configs, set_global_seeds
 from ddpg.learn import learn
 from itertools import chain
 import numpy as np
@@ -24,7 +24,8 @@ def main():
 
         def env_fn():
             return TubeEnv(**ekwargs)
-
+        
+        
         learn(env_fn, seed=args.seed, **akwargs)
 
 

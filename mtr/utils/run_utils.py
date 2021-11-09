@@ -42,7 +42,7 @@ def fill_buffer_randomly(env_fn,
         obs = scale_func(obs)
         for step in range(env.max_svs):
             act = np.random.randn(*env.action_space.shape)
-            obs2, pwc, opc, done = env.step(act)
+            act1,obs2, pwc, opc, done = env.step(act)
             rew = pwc + opc
             obs2 = scale_func(obs2)
             buffer.store(obs, act, rew, done, obs2)
@@ -53,8 +53,8 @@ def fill_buffer_randomly(env_fn,
 
 
 if __name__ == '__main__':
-    from mtr.env import TubeEnv
-    from mtr.utils.configs import get_configs
+    from env import TubeEnv
+    from utils.configs import get_configs
     args, algo_kwargs, env_kwargs = get_configs()
 
     env = TubeEnv(**env_kwargs)
